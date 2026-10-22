@@ -1,5 +1,5 @@
 ﻿using OrderProcessing.Phase1;
-
+using OrderProcessing.Phase2;
 namespace OrderProcessing;
 
 public static class Program
@@ -17,12 +17,15 @@ public static class Program
                 await RunPhaseAsync(Phase1Runner.RunAsync, cancelAfterMs);
                 break;
             case "phase2":
+                await RunPhaseAsync(Phase2Runner.RunAsync, cancelAfterMs);
+                break;
             case "phase3":
             case "phase4":
                 Console.WriteLine($"{mode} is not built yet.");
                 break;
             case "all":
                 await RunPhaseAsync(Phase1Runner.RunAsync, cancelAfterMs);
+                await RunPhaseAsync(Phase2Runner.RunAsync, cancelAfterMs);
                 break;
             default:
                 Console.WriteLine("Usage: dotnet run -- phase1|phase2|phase3|phase4|all [--cancel-after <ms>]");
