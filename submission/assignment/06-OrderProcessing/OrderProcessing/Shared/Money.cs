@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace OrderProcessing.Shared;
 
-namespace OrderProcessing.Shared
+public static class Money
 {
-    internal class Money
-    {
-    }
+    public static decimal Round(decimal value) =>
+        Math.Round(value, 2, MidpointRounding.AwayFromZero);
 }
