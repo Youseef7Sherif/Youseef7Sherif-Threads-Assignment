@@ -48,6 +48,7 @@ public static class Phase1Runner
         int finished = 0;
         int cancelled = 0;
 
+        var validationWatch = new Stopwatch();   // validation time only
         watch.Restart();
         foreach (Order order in orders)
         {
@@ -56,13 +57,15 @@ public static class Phase1Runner
 
             try
             {
+                validationWatch.Start();
                 await validator.ValidateOrderAsync(order, ct);
+                validationWatch.Stop();
+
                 await orderRepo.SaveAsync(order, ct);
                 finished++;
             }
             catch (OperationCanceledException)
             {
-                // The order in progress stops: save it as Pending / "Cancelled"
                 order.Status = OrderStatus.Pending;
                 order.FailureReason = "Cancelled";
                 await orderRepo.SaveAsync(order, CancellationToken.None);
@@ -71,7 +74,8 @@ public static class Phase1Runner
             }
         }
         watch.Stop();
-        double asyncSeconds = watch.Elapsed.TotalSeconds;
+        double asyncTotalSeconds = watch.Elapsed.TotalSeconds;
+        double asyncSeconds = validationWatch.Elapsed.TotalSeconds;
 
         if (ct.IsCancellationRequested)
         {
@@ -94,6 +98,10 @@ public static class Phase1Runner
             Console.WriteLine($"- Order #{order.Id}: {order.FailureReason}");
         Console.WriteLine($"Sync Time: {syncSeconds:F1} seconds");
         Console.WriteLine($"Async Time: {asyncSeconds:F1} seconds");
+        Console.WriteLine($"Sync Time: {syncSeconds:F1} seconds");
+        Console.WriteLine($"Async Time: {asyncSeconds:F1} seconds");
+        Console.WriteLine($"Async Time including saving: {asyncTotalSeconds:F1} seconds");
+        Console.WriteLine($"orders.json now contains {all.Count} records.");
         Console.WriteLine($"orders.json now contains {all.Count} records.");
     }
 }
