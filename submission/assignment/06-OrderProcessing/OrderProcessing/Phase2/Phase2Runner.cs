@@ -1,7 +1,8 @@
-﻿using System.Diagnostics;
-using OrderProcessing.Phase1;
+﻿using OrderProcessing.Phase1;
+using OrderProcessing.Shared.Logging;
 using OrderProcessing.Shared.Models;
 using OrderProcessing.Shared.Storage;
+using System.Diagnostics;
 
 namespace OrderProcessing.Phase2;
 
@@ -56,6 +57,7 @@ public static class Phase2Runner
 
             Console.WriteLine();
             Console.WriteLine("--- Validating all orders concurrently ---");
+            Log.ResetThreadTracking();
             var total = Stopwatch.StartNew();
 
             var validation = new List<(Order Order, Task Task)>();
@@ -144,7 +146,7 @@ public static class Phase2Runner
             for (int i = 0; i < tasks.Count; i++)
                 Console.WriteLine($"  Order #{started[i].Id}: task {tasks[i].Status}, order {started[i].Status}");
             Console.WriteLine($"Total time (validate + process, concurrent): {total.Elapsed.TotalSeconds:F1} seconds");
-
+            Console.WriteLine($"Distinct threads used: {Log.DistinctThreads}, ThreadPool.ThreadCount: {ThreadPool.ThreadCount}");
             // ---------- 4) check orders.json ----------
             List<Order> saved = await orderRepo.GetAllAsync(ct);
             Console.WriteLine();

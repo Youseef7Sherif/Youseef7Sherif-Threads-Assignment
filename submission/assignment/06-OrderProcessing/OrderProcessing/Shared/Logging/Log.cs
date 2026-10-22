@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace OrderProcessing.Shared.Logging;
 
 public static class Log
@@ -7,11 +9,14 @@ public static class Log
     public static void Info(string message) => Write(message, null);
     public static void Success(string message) => Write(message, ConsoleColor.Green);
     public static void Error(string message) => Write(message, ConsoleColor.Red);
-
+    static readonly ConcurrentDictionary<int, byte> ThreadsSeen = new();
+    public static int DistinctThreads => ThreadsSeen.Count;
+    public static void ResetThreadTracking() => ThreadsSeen.Clear();
     static void Write(string message, ConsoleColor? color)
     {
         // The thread id is read here, on the thread that called Log
         string line = $"[{DateTime.Now:HH:mm:ss.fff}] [Thread {Environment.CurrentManagedThreadId}] {message}";
+        ThreadsSeen.TryAdd(Environment.CurrentManagedThreadId, 0);
 
         lock (Sync)
         {
