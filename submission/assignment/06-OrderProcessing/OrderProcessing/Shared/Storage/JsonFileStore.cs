@@ -8,7 +8,7 @@ namespace OrderProcessing.Shared.Storage;
 
 public sealed class JsonFileStore
 {
-    static readonly JsonSerializerOptions Options = new()
+    public static readonly JsonSerializerOptions Options = new()
     {
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
